@@ -1,6 +1,6 @@
 /*
     10-5-11
-    Copyright Spark Fun Electronics© 2011
+    Copyright Spark Fun Electronicsï¿½ 2011
     Aaron Weiss
     aaron at sparkfun dot com
     
@@ -74,6 +74,8 @@ void print_adxl345(void);
 void print_hmc5883(void);
 void print_itg3200(void);
 void raw(void);
+void raw_binary(void);
+inline void print_raw_uint16_t(uint16_t a);
 void self_test(void);
 uint16_t x_accel(void);
 uint16_t y_accel(void);
@@ -93,6 +95,7 @@ const char mag[] PROGMEM = "[2]Magnetometer: HMC5883 \n\r";
 const char gyro[] PROGMEM = "[3]Gyroscope: ITG-3200 \n\r";
 const char raw_out[] PROGMEM = "[4]Raw Output\n\r";
 const char baud_change[] PROGMEM = "[5]Change Baud Rate: ";
+const char raw_out_binary[] PROGMEM = "[6]Raw Output (binary)\n\r";
 const char autorun[] PROGMEM = "[Ctrl+z]Toggle Autorun\n\r";
 const char help_[] PROGMEM = "[?]Help\n\r";
 
@@ -166,7 +169,7 @@ void auto_raw(void)
 		printf("%d,", y_mag);
 		printf("%d", z_mag);
 		printf("#\n\r");
-		delay_ms(350);//at least 100ms interval between mag measurements
+		delay_ms(100);//at least 100ms interval between mag measurements
 	}
 
 	//if a button is pressed and that button is ctrl-z, reset autorun, display menu
@@ -334,6 +337,7 @@ void config_menu(void)
 	printf_P(raw_out);
 	printf_P(baud_change);
 	printf("%ldbps\n\r", baud);
+	printf_P(raw_out_binary);
 	printf_P(autorun);
 	printf_P(help_);
 	
@@ -362,7 +366,7 @@ void config_read(void)
 				while(!(UCSR0A & (1 << RXC0)))
 				{
 					print_hmc5883();
-					delay_ms(350);//at least 100ms interval between measurements
+					delay_ms(100);//at least 100ms interval between measurements
 				}
 				config_menu();
 			}
@@ -379,6 +383,11 @@ void config_read(void)
 			if(choice=='5')
 			{
 				baud_menu();
+				config_menu();
+			}
+			if(choice=='6')
+			{
+				while(!(UCSR0A & (1 << RXC0)))raw_binary();
 				config_menu();
 			}
 			if(choice==0x10) //if ctrl-p
@@ -448,6 +457,7 @@ void help(void)
 	printf("[4] send ascii 4 to get the raw output from all of the sensors. Hit any key to return to menu.\n\r");
 	printf("*** Raw format '$accelx,accely,accelz,gyrox,gyroy,gyroz,magx,magy,magz#\n\r");
 	printf("[5] send ascii 5 to get the 5 choices for baud rates. Reset terminal and board after change. Hit any key to return to menu.\n\r");
+	printf("[6] send ascii 6 to get the raw output from all the sensors, in binary format. Hit any key to return to the menu.\n\r");
 	printf("[ctrl-p] ctrl-p tests the accelerometer and magnetometer.\n\r");
 	printf("[ctrl-z] ctrl+z at anytime will toggle between raw output and the menu\n\r");
 }
@@ -567,7 +577,43 @@ void raw(void)
 	printf("%d,", y_mag);
 	printf("%d", z_mag);
 	printf("#\n\r");
-	delay_ms(350);//at least 100ms interval between mag measurements
+	delay_ms(100);//at least 100ms interval between mag measurements
+}
+
+void raw_binary(void)
+{
+/*	uint16_t x_mag = x_mag();
+	uint16_t y_mag = y_mag();
+	uint16_t z_mag = z_mag();
+	*/
+	//putchar('$');
+	printf("$");
+	
+	print_raw_uint16_t(x_accel());
+	print_raw_uint16_t(y_accel());
+	print_raw_uint16_t(z_accel());
+	
+	print_raw_uint16_t(x_gyro());
+	print_raw_uint16_t(y_gyro());
+	print_raw_uint16_t(z_gyro());
+	
+	magnetometer();
+	print_raw_uint16_t(x_mag);
+	print_raw_uint16_t(y_mag);
+	print_raw_uint16_t(z_mag);
+	
+	printf("#\n");
+	//putchar('#');
+	//putchar('\n');
+	
+	delay_ms(100);//at least 100ms interval between mag measurements
+}
+
+inline void print_raw_uint16_t(uint16_t a)
+{
+	printf("%c%c", (char)(a >> 8), (char)(a & 0xff));
+	//putchar((char)(a >> 8));//send first 8 bits
+	//putchar((char)(a & 0xff));//send last 8 bits
 }
 
 void self_test(void)
@@ -693,21 +739,21 @@ void self_test(void)
 	
 	if(data == 0x69)
 	{
-		//printf("ITG: GOOD\n\r");
+		printf("ITG: GOOD\n\r");
 		gyro_flag = 1;
-	}//else printf("ITG: BAD\n\r");
+	}else printf("ITG: BAD\n\r");
 	
 	if(hmc_flag == 0)
 	{
-		//printf("HMC: GOOD\n\r");
+		printf("HMC: GOOD\n\r");
 		mag_flag = 1;
-	}//else printf("HMC: BAD\n\r");
+	}else printf("HMC: BAD\n\r");
 	
 	if(x == 0xE5)
 	{
-		//printf("ADXL: GOOD\n\r");
+		printf("ADXL: GOOD\n\r");
 		accel_flag = 1;
-	}//else printf("ADXL: BAD\n\r");
+	}else printf("ADXL: BAD\n\r");
 	
 	if(gyro_flag ==1 && mag_flag == 1 && accel_flag == 1)
 	{
