@@ -216,7 +216,7 @@ void baud_menu(void)
 			UART_Init(207);
 			while(1);
 		}
-		if(choicer=='2') //9600
+		else if(choicer=='2') //9600
 		{
 			write_to_EEPROM(2, 99); //outside of default flag
 			
@@ -232,7 +232,7 @@ void baud_menu(void)
 			UART_Init(103);
 			while(1);
 		}
-		if(choicer=='3') //19200
+		else if(choicer=='3') //19200
 		{
 			write_to_EEPROM(2, 99); //outside of default flag
 			
@@ -248,7 +248,7 @@ void baud_menu(void)
 			UART_Init(51);
 			while(1);
 		}
-		if(choicer=='4') //38400
+		else if(choicer=='4') //38400
 		{
 			write_to_EEPROM(2, 99); //outside of default flag
 			
@@ -264,7 +264,7 @@ void baud_menu(void)
 			UART_Init(25);
 			while(1);
 		}
-		if(choicer=='5') //57600
+		else if(choicer=='5') //57600
 		{
 			write_to_EEPROM(2, 99); //outside of default flag
 			
@@ -280,7 +280,7 @@ void baud_menu(void)
 			UART_Init(16);
 			while(1);
 		}
-		if((choicer < 0X31) || (choicer > 0x35))config_menu(); //if choice is not #s 1-5 goto conig menu
+		else if((choicer < 0X31) || (choicer > 0x35))config_menu(); //if choice is not #s 1-5 goto conig menu
 	}
 	config_menu();
 }
@@ -361,7 +361,7 @@ void config_read(void)
 				while(!(UCSR0A & (1 << RXC0)))print_adxl345();
 				config_menu();
 			}
-			if(choice=='2')
+			else if(choice=='2')
 			{
 				while(!(UCSR0A & (1 << RXC0)))
 				{
@@ -370,42 +370,42 @@ void config_read(void)
 				}
 				config_menu();
 			}
-			if(choice=='3')
+			else if(choice=='3')
 			{
 				while(!(UCSR0A & (1 << RXC0)))print_itg3200();
 				config_menu();
 			}
-			if(choice=='4')
+			else if(choice=='4')
 			{
 				while(!(UCSR0A & (1 << RXC0)))raw();
 				config_menu();
 			}
-			if(choice=='5')
+			else if(choice=='5')
 			{
 				baud_menu();
 				config_menu();
 			}
-			if(choice=='6')
+			else if(choice=='6')
 			{
 				while(!(UCSR0A & (1 << RXC0)))raw_binary();
 				config_menu();
 			}
-			if(choice==0x10) //if ctrl-p
+			else if(choice==0x10) //if ctrl-p
 			{
 				self_test();
 			}
-			if(choice==0x1A) //if ctrl-z
+			else if(choice==0x1A) //if ctrl-z
 			{
 				write_to_EEPROM(1,48);
 				auto_raw();
 			}
-			if(choice==0x3F) //if ?
+			else if(choice==0x3F) //if ?
 			{
 				help();
 				while(!(UCSR0A & (1 << RXC0)));
 				config_menu();
 			}
-			if(choice==0xFF) config_read();
+			else if(choice==0xFF) config_read();
 		}
 	}else auto_raw();
 
