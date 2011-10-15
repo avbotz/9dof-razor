@@ -1,0 +1,10 @@
+.DS_Store
+.dep/
+main.eep
+*.elf
+*.hex
+*.lss
+*.lst
+*.map
+*.o
+*.sym
