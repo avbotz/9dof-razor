@@ -1,6 +1,6 @@
 /*
     10-5-11
-    Copyright Spark Fun Electronics� 2011
+    Copyright Spark Fun Electronics (c) 2011
     Aaron Weiss
     aaron at sparkfun dot com
     
@@ -586,8 +586,7 @@ void raw_binary(void)
 	uint16_t y_mag = y_mag();
 	uint16_t z_mag = z_mag();
 	*/
-	//putchar('$');
-	printf("$");
+	putchar('$');
 	
 	print_raw_uint16_t(x_accel());
 	print_raw_uint16_t(y_accel());
@@ -602,18 +601,17 @@ void raw_binary(void)
 	print_raw_uint16_t(y_mag);
 	print_raw_uint16_t(z_mag);
 	
-	printf("#\n");
-	//putchar('#');
-	//putchar('\n');
+	putchar('#');
+	putchar('\n');
 	
 	delay_ms(100);//at least 100ms interval between mag measurements
 }
 
 inline void print_raw_uint16_t(uint16_t a)
 {
-	printf("%c%c", (char)(a >> 8), (char)(a & 0xff));
-	//putchar((char)(a >> 8));//send first 8 bits
-	//putchar((char)(a & 0xff));//send last 8 bits
+	//printf("%d  %d  ", (char)(a >> 8), (char)(a & 0xff));
+	putchar((char)(a >> 8));//send first 8 bits
+	putchar((char)(a & 0xff));//send last 8 bits
 }
 
 void self_test(void)
