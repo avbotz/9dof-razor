@@ -99,7 +99,7 @@ const char help_[] PROGMEM = "[?]Help\n\r";
 ///============Global Vars=========/////////////////
 uint16_t x_mag, y_mag, z_mag; //x, y, and z magnetometer values
 long baud;
-
+uint16_t num_sent = 0;
 
 /////===========MAIN=====================/////////////////////
 int main(void)
@@ -542,7 +542,7 @@ void magnetometer_init(void)
 
 void raw(void)
 {
-	//prints the raw vaues with a '$' start and '#\n\r' end
+	//prints the raw values with a '$' start and '#\n\r' end
 	printf("$");
 	printf("%d,", x_accel());
 	printf("%d,", y_accel());
@@ -550,12 +550,28 @@ void raw(void)
 	printf("%d,", x_gyro());
 	printf("%d,", y_gyro());
 	printf("%d,", z_gyro());
-	magnetometer();
+	
+	//at least 100ms interval between mag measurements
+	if(num_sent % 10 == 0)
+	{
+		magnetometer();
+	}
+	
 	printf("%d,", x_mag);
 	printf("%d,", y_mag);
 	printf("%d", z_mag);
 	printf("#\n\r");
-	delay_ms(100);//at least 100ms interval between mag measurements
+	
+	if(num_sent == 9)
+	{
+		num_sent = 0;
+	}
+	else
+	{
+		num_sent++;
+	}
+	
+	delay_ms(10);
 }
 
 void self_test(void)
