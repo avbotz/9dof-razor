@@ -81,6 +81,7 @@ uint16_t z_accel(void);
 uint16_t x_gyro(void);
 uint16_t y_gyro(void);
 uint16_t z_gyro(void);
+uint16_t temp_gyro(void);
 
 ///============EEPROM Protoypes============//////////////////
 void write_to_EEPROM(unsigned int Address, unsigned char Data);
@@ -550,6 +551,7 @@ void raw(void)
 	printf("%d,", x_gyro());
 	printf("%d,", y_gyro());
 	printf("%d,", z_gyro());
+	printf("%d,", temp_gyro());
 	
 	//at least 100ms interval between mag measurements
 	if(num_sent % 10 == 0)
@@ -750,7 +752,8 @@ void print_itg3200(void)
 	
 	printf("x= %4d, ", x_gyro());
 	printf("y= %4d, ", y_gyro());
-	printf("z= %4d\n\r", z_gyro());
+	printf("z= %4d, ", z_gyro());
+	printf("temp= %4d\n\r", temp_gyro());
 
 	delay_ms(20);
 }
@@ -891,6 +894,58 @@ uint16_t z_gyro(void)
 	i2cSendByte(ITG3200_W);	// write
 	i2cWaitForComplete();
 	i2cSendByte(0x22);	// z low address
+	i2cWaitForComplete();
+	i2cSendStart();
+	
+	i2cSendByte(ITG3200_R);	// read
+	i2cWaitForComplete();
+	i2cReceiveByte(FALSE);
+	i2cWaitForComplete();
+	
+	xl = i2cGetReceivedByte();	// Get LSB result
+	i2cWaitForComplete();
+	i2cSendStop();
+	
+	data = xl|(xh << 8);
+	
+	cbi(TWCR, TWEN);	// Disable TWI
+	sbi(TWCR, TWEN);	// Enable TWI
+	
+	return data;
+}
+
+uint16_t temp_gyro(void)
+{
+	uint16_t  xh, xl, data;
+	
+	cbi(TWCR, TWEN);	// Disable TWI
+	sbi(TWCR, TWEN);	// Enable TWI
+	
+	i2cSendStart();
+	i2cWaitForComplete();
+	i2cSendByte(ITG3200_W);	// write
+	i2cWaitForComplete();
+	i2cSendByte(0x1B);	   // temperature high address
+	i2cWaitForComplete();
+	i2cSendStart();
+	
+	i2cSendByte(ITG3200_R);	// read
+	i2cWaitForComplete();
+	i2cReceiveByte(FALSE);
+	i2cWaitForComplete();
+	
+	xh = i2cGetReceivedByte();	// Get MSB result
+	i2cWaitForComplete();
+	i2cSendStop();
+	
+	cbi(TWCR, TWEN);	// Disable TWI
+	sbi(TWCR, TWEN);	// Enable TWI
+	
+	i2cSendStart();
+	i2cWaitForComplete();
+	i2cSendByte(ITG3200_W);	// write
+	i2cWaitForComplete();
+	i2cSendByte(0x1C);	    // temperature low address
 	i2cWaitForComplete();
 	i2cSendStart();
 	
